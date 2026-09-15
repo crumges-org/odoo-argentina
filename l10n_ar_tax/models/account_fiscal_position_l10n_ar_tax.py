@@ -313,7 +313,7 @@ class AccountFiscalPositionL10nArTax(models.Model):
         except requests.exceptions.Timeout as e:
             _logger.warning("%s" % str(e))
             raise UserError(error_msg + self.env._("Timeout error when getting data.")) from e
-        except requests.exceptions.RequestException as e:
+        except (requests.exceptions.JSONDecodeError, json.JSONDecodeError) as e:
             _logger.warning("%s" % str(e))
             raise UserError(error_msg) from e
         if not r.ok:
@@ -324,7 +324,7 @@ class AccountFiscalPositionL10nArTax(models.Model):
         # crudo al usuario en vez del instructivo de arriba (tickets 108553, 122532, 126698)
         try:
             json_body = r.json()
-        except requests.exceptions.JSONDecodeError as e:
+        except (requests.exceptions.JSONDecodeError, json.JSONDecodeError) as e:
             _logger.warning("rentascordoba answered a non-JSON body: %s", r.text[:500])
             raise UserError(error_msg + self.env._("The webservice answered a non-JSON response.")) from e
         code = json_body.get("errorCod")
